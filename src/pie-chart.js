@@ -8,6 +8,7 @@ class PieChart extends PureComponent {
     state = {
         height: 0,
         width: 0,
+        layouts: {},
     }
 
     _onLayout(event) {
@@ -48,7 +49,7 @@ class PieChart extends PureComponent {
             endAngle,
         } = this.props
 
-        const { height, width } = this.state
+        const { height, width, layouts } = this.state
 
         if (!data && dataPoints) {
             throw `"dataPoints" have been renamed to "data" to better reflect the fact that it's an array of objects`
@@ -141,8 +142,17 @@ class PieChart extends PureComponent {
                                     const { key, onPress, svg } = data[index]
                                     return (
                                         <Path
+                                            onLayout={(event) => {
+                                                console.log(`Path ${index}:`, event.nativeEvent)
+                                                layouts[index] = event.nativeEvent
+                                                this.setState({ layouts })
+                                            }}
                                             key={key}
-                                            onPress={onPress}
+                                            onPress={() => {
+                                                if (onPress) {
+                                                    onPress(layouts[index])
+                                                }
+                                            }}
                                             {...svg}
                                             d={arcs[index](slice)}
                                             animate={animate}
